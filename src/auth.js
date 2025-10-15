@@ -1,29 +1,26 @@
-// Auth.js v5 (NextAuth v5) configuration using MongoDB adapter and Email (magic link)
+// Auth.js v5-style API, implemented compatibly for NextAuth v4 runtime
+// - Exports `handlers` with GET/POST for App Router route
+// - Exports `auth()` shim using v4 getServerSession so server components can call `await auth()`
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Email from "next-auth/providers/email";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "./lib/mongodb";
 import { ObjectId } from "mongodb";
+import { getServerSession } from "next-auth/next";
 
 const ADMIN_EMAIL = "victorchelemu@gmail.com";
 
-export const {
-  handlers,
-  auth,
-  signIn,
-  signOut,
-} = NextAuth({
+export const authOptions = {
   adapter: MongoDBAdapter(clientPromise),
   session: { strategy: "database" },
-  trustHost: true,
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
-    // Magic Link (passwordless) using SMTP via Nodemailer
     Email({
       server: {
         host: process.env.EMAIL_SERVER_HOST,
@@ -51,7 +48,6 @@ export const {
     },
   },
   events: {
-    // Ensure a role is set on first creation; promote the configured admin email
     async createUser({ user }) {
       try {
         const client = await clientPromise;
@@ -80,5 +76,15 @@ export const {
       }
     },
   },
-});
+};
 
+// App Router route handlers (v4-compatible)
+const handler = NextAuth(authOptions);
+export const handlers = { GET: handler, POST: handler };
+
+// v5-like auth() helper shim for Server Components / APIs
+export async function auth(...args) {
+  if (args.length === 0) return getServerSession(authOptions);
+  if (args.length === 1) return getServerSession(args[0]);
+  return getServerSession(args[0], args[1], authOptions);
+}

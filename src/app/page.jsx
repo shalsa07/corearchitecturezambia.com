@@ -1,5 +1,11 @@
 // Landing page inspired by corearchitecturezambia.com with embedded Auth (Google + Magic Link)
 export default function Home() {
+  const projects=[
+    { name: "Project 1", image: "/0001.png" },
+    { name: "Project 2", image: "/0002.png" },
+    { name: "Project 3", image: "/0003.png" },
+    { name: "Project 4", image: "/0004.png" },
+  ]
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Top Navigation */}
@@ -27,7 +33,7 @@ export default function Home() {
         {/* Optional background image in /public/hero.jpg */}
         <div
           className="absolute inset-0 bg-center bg-cover opacity-35"
-          style={{ backgroundImage: "url('/hero.jpg')" }}
+          style={{ backgroundImage: "url('/0001.png')" }}
           aria-hidden
         />
 
@@ -78,11 +84,11 @@ export default function Home() {
           <a href="#contact" className="text-sm text-white/60 hover:text-white">Start a project →</a>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1,2,3,4,5,6].map((i) => (
-            <div key={i} className="group overflow-hidden rounded-lg border border-white/10 bg-white/5">
-              <div className="aspect-[4/3] bg-gradient-to-br from-white/10 to-white/0" />
+          {projects.map((p) => (
+            <div key={p.name} className="group overflow-hidden rounded-lg border border-white/10 bg-white/5">
+              <div className="aspect-[4/3] bg-gradient-to-br from-white/10 to-white/0" style={{ backgroundImage: `url(${p.image})` }} />
               <div className="p-3">
-                <p className="text-sm font-medium">Project {i}</p>
+                <p className="text-sm font-medium">{p.name}</p>
                 <p className="text-xs text-white/60">Lusaka, Zambia</p>
               </div>
             </div>

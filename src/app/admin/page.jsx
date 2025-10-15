@@ -1,4 +1,4 @@
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import clientPromise from "@/lib/mongodb";
 import { redirect } from "next/navigation";
 
@@ -22,12 +22,8 @@ export default async function AdminPage() {
       <div className="mx-auto max-w-5xl">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-semibold">Admin Dashboard</h1>
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
-            }}
-          >
+          <form action="/api/auth/signout" method="post">
+            <input type="hidden" name="callbackUrl" value="/" />
             <button className="rounded-md bg-white/10 px-4 py-2 text-sm hover:bg-white/20">
               Sign out
             </button>

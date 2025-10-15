@@ -44,3 +44,24 @@ Landing: redesign inspired by corearchitecturezambia.com; add clear sign-in UI (
 - Preserved existing Auth.js v5 setup (MongoDB adapter, email+google providers)
 
 
+
+### Auth.js (NextAuth) v5 Upgrade Note
+- Target: move from v4 to v5 helper APIs (`auth`, `handlers`, `signIn`, `signOut`).
+- Action taken now: Implemented a v4-compatible shim in `src/auth.js` that exports `handlers` and an `auth()` helper compatible with Server Components, plus kept Email + Google providers and MongoDB adapter. This resolves the runtime error without breaking flows.
+- Pending explicit v5 install: The registry/dist-tag for `next-auth@beta` was not applied locally (node_modules resolved to 4.24.11). When feasible, perform a clean install to pin v5:
+  1. Stop dev: `lsof -ti:3001 | xargs kill -9 || true`
+  2. Remove cache/lock and modules: `rm -rf node_modules package-lock.json && npm cache clean --force`
+  3. Install v5 beta: `npm install next-auth@beta --save`
+  4. Install deps: `npm install`
+  5. Verify: open `node_modules/next-auth/package.json` and ensure version starts with `5.`
+  6. Optionally switch `src/auth.js` back to native v5 export style:
+     - `export const { handlers, auth, signIn, signOut } = NextAuth({ ... })`
+- Current state: App functions with the shim; sign-in via Google and magic link works; /admin uses `await auth()` safely.
+
+### Commit Message (Auth v5 upgrade work)
+Auth: add v4-compatible shim for `auth()` and route `handlers`; prep path for NextAuth v5 upgrade
+
+- Fix runtime: remove “auth is not a function” in Server Components
+- Keep Email + Google providers and MongoDB adapter
+- Update Admin sign-out to POST `/api/auth/signout` for v4 compatibility
+- Document upgrade path and verification steps
